@@ -4,15 +4,16 @@ require 'rmagick'
 require 'securerandom'
 
 module Shiori
-  def self.save_image image_path, save_path
-    Core.new image_path , save_path
+  def self.save_image image_path, save_path, quality=-1
+    Core.new image_path , save_path, quality
   end
 
   class Core
-    attr_accessor :save_path, :resize_path, :uid
+    attr_accessor :save_path, :resize_path, :uid, :quality
 
-    def initialize org_image_path, save_path
+    def initialize org_image_path, save_path, quality
       @uid = SecureRandom.hex(16)
+      @quality = quality.integer? ? quality : -1
 
       image = nil 
       meta = nil
@@ -29,17 +30,28 @@ module Shiori
     end
 
     def resize width, height
+      q = @quality
       orig = Magick::Image.read(@save_path).first
       image = orig.resize_to_fit(width, height)
       @resize_path = "#{File.dirname(@save_path)}/#{File.basename(@save_path, ".*")}_#{width}#{File.extname(@save_path)}"
-      image.write(@resize_path)
+      if q > -1
+        image.write(@resize_path){ self.quality = q }
+      else
+        image.write(@resize_path)
+      end
     end
     
     def resize_to_fill fill
+      q = @quality
       orig = Magick::Image.read(@save_path).first
       image = orig.resize_to_fill(fill, fill)
       @fill_path = "#{File.dirname(@save_path)}/#{File.basename(@save_path, ".*")}_fill_#{fill}#{File.extname(@save_path)}"
-      image.write(@fill_path)
+      if q > -1
+        image.write(@fill_path){ self.quality = q }
+      else
+        image.write(@fill_path)
+      end
+
     end
   end
 end
