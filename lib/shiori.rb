@@ -38,7 +38,7 @@ module Shiori
       else
         @uid = save_path.gsub(/^.*image_(.*?)\.(.*)$/,"\\1")
 
-        @save_path = savefile
+        @save_path = save_path
         @resize_path = "#{File.dirname(@save_path)}/#{File.basename(@save_path, ".*")}_#{width}#{File.extname(@save_path)}"
         @fill_path = "#{File.dirname(@save_path)}/#{File.basename(@save_path, ".*")}_fill_#{fill}#{File.extname(@save_path)}"
       end
