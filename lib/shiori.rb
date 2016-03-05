@@ -9,40 +9,39 @@ module Shiori
   end
 
   def self.new savefile, quality=-1
-    Core.new savefile, quality
+    Core.new nil, savefile, quality
   end
 
   class Core
     attr_accessor :save_path, :resize_path, :uid, :quality
 
-    def initialize savefile, quality
-      @uid = savefile.gsub(/^.*image_(.*?)\.(.*)$/,"\\1")
-      @quality = quality.integer? ? quality : -1
-
-      @save_path = savefile
-      @resize_path = "#{File.dirname(@save_path)}/#{File.basename(@save_path, ".*")}_#{width}#{File.extname(@save_path)}"
-      @fill_path = "#{File.dirname(@save_path)}/#{File.basename(@save_path, ".*")}_fill_#{fill}#{File.extname(@save_path)}"
-    end
-
     def initialize org_image_path, save_path, quality
-      @uid = SecureRandom.hex(16)
       @quality = quality.integer? ? quality : -1
+      if org_image_path != nil
+        @uid = SecureRandom.hex(16)
 
-      image = nil 
-      meta = nil
-      open(org_image_path, "User-Agent" => "shiori-bot/#{Shiori::VERSION}") do |data|
-        image = data.read
-        meta = data.meta
+        image = nil 
+        meta = nil
+        open(org_image_path, "User-Agent" => "shiori-bot/#{Shiori::VERSION}") do |data|
+          image = data.read
+          meta = data.meta
+        end
+
+        ext = meta["content-type"].gsub("image\/","")
+        @save_path = "#{save_path}/image_#{@uid}.#{ext}"
+        open(@save_path, 'wb') do |output|
+          output.write(image)
+        end
+
+        @resize_path = "#{File.dirname(@save_path)}/#{File.basename(@save_path, ".*")}_#{width}#{File.extname(@save_path)}"
+        @fill_path = "#{File.dirname(@save_path)}/#{File.basename(@save_path, ".*")}_fill_#{fill}#{File.extname(@save_path)}"
+      else
+        @uid = save_path.gsub(/^.*image_(.*?)\.(.*)$/,"\\1")
+
+        @save_path = savefile
+        @resize_path = "#{File.dirname(@save_path)}/#{File.basename(@save_path, ".*")}_#{width}#{File.extname(@save_path)}"
+        @fill_path = "#{File.dirname(@save_path)}/#{File.basename(@save_path, ".*")}_fill_#{fill}#{File.extname(@save_path)}"
       end
-
-      ext = meta["content-type"].gsub("image\/","")
-      @save_path = "#{save_path}/image_#{@uid}.#{ext}"
-      open(@save_path, 'wb') do |output|
-        output.write(image)
-      end
-
-      @resize_path = "#{File.dirname(@save_path)}/#{File.basename(@save_path, ".*")}_#{width}#{File.extname(@save_path)}"
-      @fill_path = "#{File.dirname(@save_path)}/#{File.basename(@save_path, ".*")}_fill_#{fill}#{File.extname(@save_path)}"
     end
 
     def resize width, height
