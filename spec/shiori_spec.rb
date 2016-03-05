@@ -36,4 +36,13 @@ describe Shiori do
     expect(File.exist?(shiori.resize_path)).to be true
   end
 
+  it 'new instance and resize from existing image file' do
+    shiori = Shiori::new "./image_11111.png"
+    shiori.resize 300, 300
+    shiori.resize_to_fill 300, 300
+
+    expect(File.exist?(shiori.save_path)).to be true
+    expect(File.exist?(shiori.resize_path)).to be true
+  end
+
 end
