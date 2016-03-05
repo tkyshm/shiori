@@ -33,14 +33,10 @@ module Shiori
           output.write(image)
         end
 
-        @resize_path = "#{File.dirname(@save_path)}/#{File.basename(@save_path, ".*")}_#{width}#{File.extname(@save_path)}"
-        @fill_path = "#{File.dirname(@save_path)}/#{File.basename(@save_path, ".*")}_fill_#{fill}#{File.extname(@save_path)}"
       else
         @uid = save_path.gsub(/^.*image_(.*?)\.(.*)$/,"\\1")
 
         @save_path = save_path
-        @resize_path = "#{File.dirname(@save_path)}/#{File.basename(@save_path, ".*")}_#{width}#{File.extname(@save_path)}"
-        @fill_path = "#{File.dirname(@save_path)}/#{File.basename(@save_path, ".*")}_fill_#{fill}#{File.extname(@save_path)}"
       end
     end
 
@@ -48,6 +44,7 @@ module Shiori
       q = @quality
       orig = Magick::Image.read(@save_path).first
       image = orig.resize_to_fit(width, height)
+      @resize_path = "#{File.dirname(@save_path)}/#{File.basename(@save_path, ".*")}_#{width}#{File.extname(@save_path)}"
       if q > -1
         image.write(@resize_path){ self.quality = q }
       else
@@ -59,12 +56,12 @@ module Shiori
       q = @quality
       orig = Magick::Image.read(@save_path).first
       image = orig.resize_to_fill(fill, fill)
+      @fill_path = "#{File.dirname(@save_path)}/#{File.basename(@save_path, ".*")}_fill_#{fill}#{File.extname(@save_path)}"
       if q > -1
         image.write(@fill_path){ self.quality = q }
       else
         image.write(@fill_path)
       end
-
     end
   end
 end
